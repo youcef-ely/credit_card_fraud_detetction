@@ -1,4 +1,4 @@
-PROJECT_PATH = '/content/drive/MyDrive/ML Project'
+PROJECT_PATH = '/content/drive/MyDrive/Credit Card Fraud Analysis'
 
 
 def warn(*args, **kwargs):
