@@ -4,10 +4,10 @@ cycler==0.12.1
 fonttools==4.53.0
 importlib_resources==6.4.0
 kiwisolver==1.4.5
-matplotlib==3.9.0
-numpy==2.0.0
+matplotlib==3.7.1
+numpy==1.25.2
 packaging==24.1
-pandas==2.2.2
+pandas==2.0.3
 pillow==10.3.0
 plotly==5.22.0
 pretty-errors==1.2.25
@@ -21,3 +21,4 @@ tenacity==8.4.1
 tqdm==4.66.4
 tzdata==2024.1
 zipp==3.19.2
+scipy==1.11.4

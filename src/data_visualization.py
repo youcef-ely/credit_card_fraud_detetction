@@ -1,5 +1,6 @@
 import pandas as pd
-import seaborn as sns, matplotlib.pyplot as plt  # noqa: E401
+import seaborn as sns
+import matplotlib.pyplot as plt # noqa: E401
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -7,6 +8,8 @@ import pretty_errors
 import itertools
 from tqdm import tqdm
 
+
+colors = ['#636EFA', '#EF553B']
 
 
 def check_pandas(data):
@@ -75,34 +78,38 @@ def histograms(data, x: list, shape: tuple, params: dict = {}):
 
 
 
-def target_boxplots(data, x: list, y: str, shape: tuple):
+def target_histograms(data, x: list, y: str, shape: tuple):
     assert len(x) <= shape[0] * shape[1], "Number of columns exceeds the grid shape"
-
+    unique_categories = data[y].unique()
+    color_dict = {cat: colors[i % len(colors)] for i, cat in enumerate(unique_categories)}
     fig = make_subplots(rows = shape[0], cols = shape[1], subplot_titles = x)
+    legend_added = {cat: False for cat in unique_categories}
 
-    for i, col in enumerate(tqdm(x, desc = 'Plotting boxplots'), start = 1):
-        row = (i - 1) // shape[1] + 1
-        col_idx = (i - 1) % shape[1] + 1
+    for i, col in enumerate(tqdm(x, desc=f'Plotting histograms grouped by {y} column'), start=1):
+        for cat in unique_categories:
+            fig.add_trace(go.Histogram(
+                x = data[data[y] == cat][col],
+                name = str(cat) if not legend_added[cat] else None,  
+                histnorm = 'probability density',
+                marker_color = color_dict[cat],
+                showlegend = not legend_added[cat]
+            ), row=(i - 1) // shape[1] + 1, col=(i - 1) % shape[1] + 1)
+            legend_added[cat] = True
 
-        fig.add_trace(
-            go.Box(y = data[col], x = data[y], name = col, boxmean = True),  # x and y switched
-            row = row, col = col_idx
-        )
-
-        fig.update_xaxes(title_text = col, row = row, col = col_idx)
-
+    fig.update_layout(showlegend = True)
     fig.show()
+    return fig
 
 
 def scatter_plots(data, x: list, y: str, shape: tuple):
     combinations = list(itertools.combinations(x, 2))
     assert len(combinations) <= shape[0] * shape[1]
-    
+
     fig = make_subplots(rows = shape[0], cols = shape[1], subplot_titles = [f"{comb[0]} vs {comb[1]}" for comb in combinations])
-    
+
     for i, comb in enumerate(tqdm(combinations)):
-        fig.add_trace(px.scatter(data, x = comb[0], y = y, color = 'is_fraud').data[0], 
-                        row = i // shape[1] + 1, 
+        fig.add_trace(px.scatter(data, x = comb[0], y = comb[1], color = y).data[0],
+                        row = i // shape[1] + 1,
                         col = i % shape[1] + 1)
     fig.show()
     return fig
